@@ -1,0 +1,71 @@
+-- Question 1 Answer --
+
+local function releaseStorage(player, playerId) -- Added an extra parameter since there might be multiple players in the game and need to be identified by ID.
+player:setStorageValue(playerId, 0)
+end
+ 
+function onLogout(player)
+local playerId = player:getId() -- Added a local variable of the playerId that can be sent to the releaseStorage function.
+If not player then return -- to check to whether the player exists
+end
+if player:getStorageValue(playerId) == 1 then -- gets the storage value based on the playerId rather than an arbitrary key value.
+addEvent(releaseStorage, 1000, player, playerId)
+end
+return true
+end
+
+-- Question 2 Answer --
+
+function printSmallGuildNames(smallGuildMaxMembers) -- changed parameter to better suit what it represents 
+-- this method is supposed to print names of all guilds that have less than memberCount max members
+local selectGuildQuery = "SELECT name FROM guilds WHERE member_count < %d;" -- This assumes being able to update a table, changed this to what it actually represents which is the member count of the guild i.e. member_count < smallGuildMaxMembers
+local resultId = db.storeQuery(string.format(selectGuildQuery, smallGuildMaxMembers))
+local guildName = resultId.getString("name") -- Changed as it was not matching the local variable name ‘resultID’ 
+print(guildName)
+end
+
+-- Question 3 Answer --
+
+function remove_PlayerParty(playerId, memberName) -- Changed the function name to suit what was contained in the function, updated the memberName parameter so it is better readable. 
+owner = Player(playerId) -- Changed variable as it best describes the role of the player in the party
+local party = owner:getParty()
+ 
+for k,v in pairs(party:getMembers()) do
+	if v == Player(memberName) then
+    	party:removeMember(Player(memberName))
+	end
+end
+end
+
+-- Question 4 Answer --
+
+void Game::addItemToPlayer(const std::string& recipient, uint16_t itemId)
+{
+Player* player = g_game.getPlayerByName(recipient);
+if (!player) 
+{
+player = new Player(nullptr);
+if (!IOLoginData::loadPlayerByName(player, recipient)) 
+{
+delete(player); // cause of a memory leak if not deleted
+Return;
+}
+}
+ 
+Item* item = Item::CreateItem(itemId);
+if (!item) 
+{
+	delete(item) // cause of memory leak if not deleted
+	delete(player) // cause of memory leak if not deleted
+	return;
+}
+ 
+g_game.internalAddItem(player->getInbox(), item, INDEX_WHEREEVER, FLAG_NOLIMIT);
+ 
+if (player->isOffline()) 
+{
+	IOLoginData::savePlayer(player);
+}
+
+
+}
